@@ -168,6 +168,84 @@ sum4=589*2704+767*348+185*3839+0*0= 411412
 0 D 761；1 E 396；2 A 883；3 O 600；4 S 567；5 I 364；6 B 157；7 Q 238
 
 ### phase_4
+```c
+    17a3:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx           # 12+rsp
+    17a8:	48 8d 35 57 1a 00 00 	lea    0x1a57(%rip),%rsi        # 3206 <_IO_stdin_used+0x206>
+    17af:	e8 9c f9 ff ff       	call   1150 <__isoc99_sscanf@plt>
+    17b4:	83 f8 02             	cmp    $0x2,%eax
+```
+从这里我们可以看出phase_4要求我们输入2个，结合下面的cmp和strings_not_equal的调用，我们可以知晓输入一个整数一个字符串
+
+函数首先会调用func_1,通过对func_1的代码进行分析我们可以很轻松地知晓他是一个递归函数，大致源代码如下：
+
+```c
+int func_1(int n){
+    if (n==1){return 1;}
+    else{return 2*func_1(n-1)+1;}
+}
+```
+而在此处我们输入的参数n=%edi=5；func_1(5)=31,所以第一个要输入的数字就是31。
+
+```c
+    17ce:	e8 23 05 00 00       	call   1cf6 <string_length>
+    17d3:	83 f8 02             	cmp    $0x2,%eax
+```
+由此处我们可以得知我们要输入的字符串的长度应该是2
+
+接下来函数调用func_2，输入func_2的参数r8d = 0x42，ecx = 0x43，edx = 0x41，esi = 0x14，edi = 0x5，最后返回的结果在%r9里
+
+对func_2分析后我们得到他大致的源码：
+```c
+string func4_2(int n, int target, char a, char b, char c, char *out) {
+    if (n == 1) {
+        out[0] = a; out[1] = b; out[2] = '\0'; return;
+    }
+    int mid = func4_1(n-1); 
+    if (target == mid + 1) {
+        out[0] = a; out[1] = b; out[2] = '\0'; return;
+    } else if (target <= mid) {
+        func4_2(n-1, target,  c,  a,  b, out);
+    } else {
+        func4_2(n-1, target - (mid + 1),b, c, a, out);
+    }
+}
+```
+所以我们可以知道，初始（layer5）传入： (A, C, B)
+进入右子树 → layer4 接收： (B, C, A)
+进入左子树 → layer3 接收： (B, A, C)
+在 layer3: target == mid+1 → 写出 (r12b, r13b) == (B, A) → "BA"。
+
+所以最后的输出是BA
+
+所以最后的密码就是31BA
+
+### phase_5
+```c
+    184b:	e8 a6 04 00 00       	call   1cf6 <string_length>
+    1850:	83 f8 06             	cmp    $0x6,%eax
+```
+从这里我们知道phase_5的输入应该是长度为6的字符串
+
+分析代码我们不难发现，我们需要让%ecx=0x4d才可以完成炸弹的拆除
+
+分析可知，ecx的值大致如下变化：
+
+```c
+    int ecx=0;
+    for(int i=0;i<5;i++){
+        ecx+=arr[s[i]&0xf]
+    }
+```
+
+通过查看地址我们发现
+
+arr[0]-arr[15]分别是：2，10，6，1，12，16，9，3，4，7，14，5，11，8，15，13
+
+我们发现：arr[4]+arr[5]+arr[6]+arr[10]arr[12]+arr[14]=77=0x4d
+
+所以我们只需要保证输入的字符串中的6个字符对应的后4位分别是4，5，6，10，12，14就可以了
+
+所以456:<>就是其中一个可行解，当然还有很多其他解
 
 ## 反馈/收获/感悟/总结
 

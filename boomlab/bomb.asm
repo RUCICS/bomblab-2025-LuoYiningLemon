@@ -616,8 +616,8 @@ Disassembly of section .text:
     1847:	53                   	push   %rbx
     1848:	48 89 fb             	mov    %rdi,%rbx
     184b:	e8 a6 04 00 00       	call   1cf6 <string_length>
-    1850:	83 f8 06             	cmp    $0x6,%eax
-    1853:	75 2c                	jne    1881 <phase_5+0x3a>
+    1850:	83 f8 06             	cmp    $0x6,%eax                 # 6位string
+    1853:	75 2c                	jne    1881 <phase_5+0x3a>         
     1855:	48 89 d8             	mov    %rbx,%rax
     1858:	48 8d 7b 06          	lea    0x6(%rbx),%rdi
     185c:	b9 00 00 00 00       	mov    $0x0,%ecx
