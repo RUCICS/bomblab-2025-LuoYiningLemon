@@ -341,13 +341,14 @@ Disassembly of section .text:
     <phase_2+0x66> 
     14a2:   e8 d1 0a 00 00          call   1f78 <explode_bomb> 
     14a7:   eb e5                   jmp    148e 
+    
     <phase_2+0x39> 
     14a9:   41 83 c3 01             add    $0x1,%r11d 
     14ad:   48 83 c7 0c             add    $0xc,%rdi 
     14b1:   48 83 c3 08             add    $0x8,%rbx 
     14b5:   41 83 fb 02             cmp    $0x2,%r11d
     14b9:	74 47                	je     1502 <phase_2+0xad>
-    14bb:	48 8d 35 5e 4c 00 00 	lea    0x4c5e(%rip),%r si        # 6120 <matB.2>
+    14bb:	48 8d 35 5e 4c 00 00 	lea    0x4c5e(%rip),%rsi        # 6120 <matB.2>
     14c2:	49 89 d9             	mov    %rbx,%r9
     14c5:	41 b8 00 00 00 00    	mov    $0x0,%r8d
     14cb:	4d 89 ca             	mov    %r9,%r10
@@ -391,9 +392,9 @@ Disassembly of section .text:
     1544:	48 83 ec 28          	sub    $0x28,%rsp
     1548:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
     154f:	00 00 
-    1551:	48 89 44 24 18       	mov    %rax,0x18(%rsp)
-    1556:	31 c0                	xor    %eax,%eax
-    1558:	48 8d 4c 24 0f       	lea    0xf(%rsp),%rcx
+    1551:	48 89 44 24 18       	mov    %rax,0x18(%rsp)          # 把rax存入0x18(%rsp)
+    1556:	31 c0                	xor    %eax,%eax                # eax=0
+    1558:	48 8d 4c 24 0f       	lea    0xf(%rsp),%rcx           
     155d:	48 8d 54 24 10       	lea    0x10(%rsp),%rdx
     1562:	4c 8d 44 24 14       	lea    0x14(%rsp),%r8
     1567:	48 8d 35 8f 1c 00 00 	lea    0x1c8f(%rip),%rsi        # 31fd <_IO_stdin_used+0x1fd>
@@ -411,6 +412,7 @@ Disassembly of section .text:
     159f:	ff e0                	jmp    *%rax
     15a1:	e8 d2 09 00 00       	call   1f78 <explode_bomb>
     15a6:	eb d0                	jmp    1578 <phase_3+0x34>
+    # case:0
     15a8:	b8 64 00 00 00       	mov    $0x64,%eax
     15ad:	81 7c 24 14 f9 02 00 	cmpl   $0x2f9,0x14(%rsp)
     15b4:	00 
@@ -418,6 +420,7 @@ Disassembly of section .text:
     15bb:	e8 b8 09 00 00       	call   1f78 <explode_bomb>
     15c0:	b8 64 00 00 00       	mov    $0x64,%eax
     15c5:	e9 d9 00 00 00       	jmp    16a3 <phase_3+0x15f>
+    # case1:
     15ca:	b8 65 00 00 00       	mov    $0x65,%eax
     15cf:	81 7c 24 14 8c 01 00 	cmpl   $0x18c,0x14(%rsp)
     15d6:	00 
@@ -425,6 +428,7 @@ Disassembly of section .text:
     15dd:	e8 96 09 00 00       	call   1f78 <explode_bomb>
     15e2:	b8 65 00 00 00       	mov    $0x65,%eax
     15e7:	e9 b7 00 00 00       	jmp    16a3 <phase_3+0x15f>
+    # case2:
     15ec:	b8 61 00 00 00       	mov    $0x61,%eax
     15f1:	81 7c 24 14 73 03 00 	cmpl   $0x373,0x14(%rsp)
     15f8:	00 
@@ -432,6 +436,7 @@ Disassembly of section .text:
     15ff:	e8 74 09 00 00       	call   1f78 <explode_bomb>
     1604:	b8 61 00 00 00       	mov    $0x61,%eax
     1609:	e9 95 00 00 00       	jmp    16a3 <phase_3+0x15f>
+    # case3:
     160e:	b8 6f 00 00 00       	mov    $0x6f,%eax
     1613:	81 7c 24 14 58 02 00 	cmpl   $0x258,0x14(%rsp)
     161a:	00 
@@ -439,6 +444,7 @@ Disassembly of section .text:
     1621:	e8 52 09 00 00       	call   1f78 <explode_bomb>
     1626:	b8 6f 00 00 00       	mov    $0x6f,%eax
     162b:	eb 76                	jmp    16a3 <phase_3+0x15f>
+    # case4
     162d:	b8 73 00 00 00       	mov    $0x73,%eax
     1632:	81 7c 24 14 37 02 00 	cmpl   $0x237,0x14(%rsp)
     1639:	00 
@@ -446,6 +452,7 @@ Disassembly of section .text:
     163c:	e8 37 09 00 00       	call   1f78 <explode_bomb>
     1641:	b8 73 00 00 00       	mov    $0x73,%eax
     1646:	eb 5b                	jmp    16a3 <phase_3+0x15f>
+    # case5
     1648:	b8 69 00 00 00       	mov    $0x69,%eax
     164d:	81 7c 24 14 6c 01 00 	cmpl   $0x16c,0x14(%rsp)
     1654:	00 
@@ -453,6 +460,7 @@ Disassembly of section .text:
     1657:	e8 1c 09 00 00       	call   1f78 <explode_bomb>
     165c:	b8 69 00 00 00       	mov    $0x69,%eax
     1661:	eb 40                	jmp    16a3 <phase_3+0x15f>
+    # case6
     1663:	b8 62 00 00 00       	mov    $0x62,%eax
     1668:	81 7c 24 14 9d 00 00 	cmpl   $0x9d,0x14(%rsp)
     166f:	00 
@@ -460,6 +468,7 @@ Disassembly of section .text:
     1672:	e8 01 09 00 00       	call   1f78 <explode_bomb>
     1677:	b8 62 00 00 00       	mov    $0x62,%eax
     167c:	eb 25                	jmp    16a3 <phase_3+0x15f>
+    # case7
     167e:	b8 71 00 00 00       	mov    $0x71,%eax
     1683:	81 7c 24 14 ee 00 00 	cmpl   $0xee,0x14(%rsp)
     168a:	00 
@@ -483,7 +492,7 @@ Disassembly of section .text:
 
 00000000000016ca <func4_1>:
     16ca:	b8 00 00 00 00       	mov    $0x0,%eax
-    16cf:	85 ff                	test   %edi,%edi
+    16cf:	85 ff                	test   %edi,%edi  # 按位与
     16d1:	7e 1c                	jle    16ef <func4_1+0x25>
     16d3:	89 f8                	mov    %edi,%eax
     16d5:	83 ff 01             	cmp    $0x1,%edi
@@ -557,14 +566,14 @@ Disassembly of section .text:
     178a:	48 83 ec 20          	sub    $0x20,%rsp
     178e:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
     1795:	00 00 
-    1797:	48 89 44 24 18       	mov    %rax,0x18(%rsp)
+    1797:	48 89 44 24 18       	mov    %rax,0x18(%rsp)          # 24+rsp=28
     179c:	31 c0                	xor    %eax,%eax
-    179e:	48 8d 4c 24 10       	lea    0x10(%rsp),%rcx
-    17a3:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx
+    179e:	48 8d 4c 24 10       	lea    0x10(%rsp),%rcx          # 16+rsp
+    17a3:	48 8d 54 24 0c       	lea    0xc(%rsp),%rdx           # 12+rsp
     17a8:	48 8d 35 57 1a 00 00 	lea    0x1a57(%rip),%rsi        # 3206 <_IO_stdin_used+0x206>
     17af:	e8 9c f9 ff ff       	call   1150 <__isoc99_sscanf@plt>
     17b4:	83 f8 02             	cmp    $0x2,%eax
-    17b7:	75 6d                	jne    1826 <phase_4+0x9d>
+    17b7:	75 6d                	jne    1826 <phase_4+0x9d>      # 输入两个 
     17b9:	bf 05 00 00 00       	mov    $0x5,%edi
     17be:	e8 07 ff ff ff       	call   16ca <func4_1>
     17c3:	39 44 24 0c          	cmp    %eax,0xc(%rsp)
