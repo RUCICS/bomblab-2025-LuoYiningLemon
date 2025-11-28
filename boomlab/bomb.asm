@@ -659,6 +659,7 @@ Disassembly of section .text:
     18cb:	e9 c6 00 00 00       	jmp    1996 <phase_6+0x107>
     18d0:	e8 a3 06 00 00       	call   1f78 <explode_bomb>
     18d5:	e9 ce 00 00 00       	jmp    19a8 <phase_6+0x119>
+    # 判断重复
     18da:	48 83 c3 01          	add    $0x1,%rbx
     18de:	83 fb 05             	cmp    $0x5,%ebx
     18e1:	0f 8f a7 00 00 00    	jg     198e <phase_6+0xff>
@@ -667,6 +668,7 @@ Disassembly of section .text:
     18ef:	75 e9                	jne    18da <phase_6+0x4b>
     18f1:	e8 82 06 00 00       	call   1f78 <explode_bomb>
     18f6:	eb e2                	jmp    18da <phase_6+0x4b>
+    # 判断完后运行，转化位7-a[i]
     18f8:	48 8b 54 24 08       	mov    0x8(%rsp),%rdx
     18fd:	48 83 c2 18          	add    $0x18,%rdx
     1901:	b9 07 00 00 00       	mov    $0x7,%ecx
@@ -676,6 +678,7 @@ Disassembly of section .text:
     1910:	49 83 c4 04          	add    $0x4,%r12
     1914:	4c 39 e2             	cmp    %r12,%rdx
     1917:	75 ed                	jne    1906 <phase_6+0x77>
+
     1919:	be 00 00 00 00       	mov    $0x0,%esi
     191e:	8b 4c b4 10          	mov    0x10(%rsp,%rsi,4),%ecx
     1922:	b8 01 00 00 00       	mov    $0x1,%eax
@@ -690,6 +693,7 @@ Disassembly of section .text:
     1943:	48 83 c6 01          	add    $0x1,%rsi
     1947:	48 83 fe 06          	cmp    $0x6,%rsi
     194b:	75 d1                	jne    191e <phase_6+0x8f>
+
     194d:	48 8b 5c 24 30       	mov    0x30(%rsp),%rbx
     1952:	48 8b 44 24 38       	mov    0x38(%rsp),%rax
     1957:	48 89 43 08          	mov    %rax,0x8(%rbx)
@@ -705,8 +709,10 @@ Disassembly of section .text:
     1986:	00 
     1987:	bd 05 00 00 00       	mov    $0x5,%ebp
     198c:	eb 35                	jmp    19c3 <phase_6+0x134>
+
     198e:	49 83 c7 01          	add    $0x1,%r15
     1992:	49 83 c6 04          	add    $0x4,%r14
+    # 读完后执行的代码，小于5
     1996:	4c 89 f5             	mov    %r14,%rbp
     1999:	41 8b 06             	mov    (%r14),%eax
     199c:	83 e8 01             	sub    $0x1,%eax
@@ -714,11 +720,14 @@ Disassembly of section .text:
     19a2:	0f 87 28 ff ff ff    	ja     18d0 <phase_6+0x41>
     19a8:	41 83 ff 05          	cmp    $0x5,%r15d
     19ac:	0f 8f 46 ff ff ff    	jg     18f8 <phase_6+0x69>
+
     19b2:	4c 89 fb             	mov    %r15,%rbx
     19b5:	e9 2d ff ff ff       	jmp    18e7 <phase_6+0x58>
+    # 递减
     19ba:	48 8b 5b 08          	mov    0x8(%rbx),%rbx
     19be:	83 ed 01             	sub    $0x1,%ebp
     19c1:	74 11                	je     19d4 <phase_6+0x145>
+    # 判断是否递减
     19c3:	48 8b 43 08          	mov    0x8(%rbx),%rax
     19c7:	8b 00                	mov    (%rax),%eax
     19c9:	39 03                	cmp    %eax,(%rbx)
