@@ -757,8 +757,9 @@ Disassembly of section .text:
     1a0d:	48 89 8c 24 88 00 00 	mov    %rcx,0x88(%rsp)
     1a14:	00 
     1a15:	31 c9                	xor    %ecx,%ecx
-    1a17:	c7 04 24 fe ff ff ff 	movl   $0xfffffffe,(%rsp)
-    1a1e:	c7 44 24 04 ff ff ff 	movl   $0xffffffff,0x4(%rsp)
+    # dx
+    1a17:	c7 04 24 fe ff ff ff 	movl   $0xfffffffe,(%rsp)               # -2
+    1a1e:	c7 44 24 04 ff ff ff 	movl   $0xffffffff,0x4(%rsp)            # -1
     1a25:	ff 
     1a26:	c7 44 24 08 01 00 00 	movl   $0x1,0x8(%rsp)
     1a2d:	00 
@@ -775,7 +776,7 @@ Disassembly of section .text:
     1a56:	c7 44 24 20 01 00 00 	movl   $0x1,0x20(%rsp)
     1a5d:	00 
     1a5e:	c7 44 24 24 02 00 00 	movl   $0x2,0x24(%rsp)
-    1a65:	00 
+    1a65:	00
     1a66:	c7 44 24 28 02 00 00 	movl   $0x2,0x28(%rsp)
     1a6d:	00 
     1a6e:	c7 44 24 2c 01 00 00 	movl   $0x1,0x2c(%rsp)
@@ -792,6 +793,7 @@ Disassembly of section .text:
     1a9d:	ff 
     1a9e:	c7 44 24 44 00 00 00 	movl   $0x0,0x44(%rsp)
     1aa5:	00 
+    # dy
     1aa6:	c7 44 24 48 00 00 00 	movl   $0x0,0x48(%rsp)
     1aad:	00 
     1aae:	c7 44 24 4c 01 00 00 	movl   $0x1,0x4c(%rsp)
@@ -852,6 +854,7 @@ Disassembly of section .text:
     1b7c:	89 c8                	mov    %ecx,%eax
     1b7e:	48 81 c4 98 00 00 00 	add    $0x98,%rsp
     1b85:	c3                   	ret
+
     1b86:	b9 00 00 00 00       	mov    $0x0,%ecx
     1b8b:	41 83 f9 13          	cmp    $0x13,%r9d
     1b8f:	7f d4                	jg     1b65 <func7+0x16d>
@@ -861,6 +864,7 @@ Disassembly of section .text:
     1b9d:	40 84 f6             	test   %sil,%sil
     1ba0:	74 c3                	je     1b65 <func7+0x16d>
     1ba2:	eb 98                	jmp    1b3c <func7+0x144>
+    
     1ba4:	4d 63 d2             	movslq %r10d,%r10
     1ba7:	42 03 44 94 40       	add    0x40(%rsp,%r10,4),%eax
     1bac:	42 03 54 94 60       	add    0x60(%rsp,%r10,4),%edx
