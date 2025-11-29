@@ -29,18 +29,15 @@ A fading Light awaits two in a closed world of forgotten Conflict.
 
 讲解题目思路
 
-通过读汇编我们不难发现，
+通过读汇编我们不难发现，这个题目对应的代码大致如下：
 ```c
-0000000000001435 <phase_1>:
-  1435: sub    $0x8,%rsp
-  1439: lea    0x1d40(%rip),%rsi    # 3180  
-  1440: call   strings_not_equal
-  1445: test   %eax,%eax
-  1447: jne    144e   
-  1449: add    $0x8,%rsp
-  144d: ret         
-  144e: call   explode_bomb
-  1453: jmp    1449
+void phase_1(){
+    string s;
+    getline(cin,s);
+    if(s!=_s){//这里的_s是一个已经存储在0x1d40＋%rip的字符串
+        explode_bomb();
+    }
+}
 ```
 
 这里进行的是将0x1d40＋%rip传入%rsi，并传入strings_not_equal与我们输入的字符串进行对比，所以我们只需要找到0x1d40＋%rip处存储的字符串就可以了
@@ -101,7 +98,25 @@ A fading Light awaits two in a closed world of forgotten Conflict.
     14df:	01 d1                	add    %edx,%ecx
 ```
 这里记录了我们最后对应的每个数字的计算的法则sum1 += matA[i+j] * matB32[j*2]，sum2 += matA[i+j] * matB32[j*2 + 1]，i表示起始位置，在sum1计算的时候不会变，j存储在eax中由0变到3。
-
+所以我们复原出来大致的代码如下：
+```c
+    outputs = [] 
+    int rdi_index = 0;                     
+    for (outer=0;outer<2;outer++){          
+        rsi_byte_offset = 0           
+        for (int inner=0;inner<2;inner++){       
+            s = 0
+            for (int k=0;k<4;k++){        
+                a = A[rdi_index + k]                          
+                b = matB_base[rsi_byte_offset + k*8]
+                s += a * b
+            }
+            outputs.push_back(s)
+            rsi_byte_offset += 4
+        }     
+        rdi_index += 3   
+    }            
+```
 然后我们就只需要用
 ```c
 (gdb) x/16gx 0x55555555140
@@ -113,13 +128,13 @@ matA = [222, 869, 761, 589, 767, 185, 0, 0, 256, 0, 0, 0, 856, 6, 0, 0]
 
 matB_32 = [886, 169, 844, 348, 429, 243, 0, 0]
 
-sum1 = 222*886 + 869*844 + 761*429 + 589*0= 1256597
+sum1 = 222\*886 + 869\*844 + 761\*429 + 589\*0= 1256597
 
-sum2 =222*2704 +869*348 +761*3839 + 589*0 = 524853
+sum2 =222\*2704 +869\*348 +761\*3839 + 589\*0 = 524853
 
-sum3=589*886+767*884+185*429+0*0= 1248567
+sum3=589\*886+767\*884+185\*429+0\*0= 1248567
 
-sum4=589*2704+767*348+185*3839+0*0= 411412
+sum4=589\*2704+767\*348+185\*3839+0\*0= 411412
 
 四个密码就破译完了
 ### phase_3
@@ -169,7 +184,7 @@ sum4=589*2704+767*348+185*3839+0*0= 411412
     159c:	48 01 d0             	add    %rdx,%rax
     159f:	ff e0                	jmp    *%rax
 ```
-这一部分很明显是swich的跳转部分，跳转的地址最终被存储在%rax中，通过查看我们我们会发现0x10(%rsp)中存储的是i时候，分别会跳转到0x55555555a8+0x22*i
+这一部分很明显是switch的跳转部分，跳转的地址最终被存储在%rax中，通过查看我们我们会发现0x10(%rsp)中存储的是i时候，分别会跳转到0x55555555a8+0x22*i
 
 以0x10(%rsp)存的是0的情况为例：
 ```c
@@ -218,24 +233,29 @@ int func_1(int n){
 
 对func_2分析后我们得到他大致的源码：
 ```c
-string func4_2(int n, int target, char a, char b, char c, char *out) {
+void func4_2(int n, int k, char A, char C, char B, char* buf) {
     if (n == 1) {
-        out[0] = a; out[1] = b; out[2] = '\0'; return;
+        buf[0] = A;
+        buf[1] = C;
+        buf[2] = '\0';
+        return;
     }
-    int mid = func4_1(n-1); 
-    if (target == mid + 1) {
-        out[0] = a; out[1] = b; out[2] = '\0'; return;
-    } else if (target <= mid) {
-        func4_2(n-1, target,  c,  a,  b, out);
+    int mid = func4_1(n - 1);
+    if (k <= mid) {
+        func4_2(n - 1, k, A, B, C, buf);
+    } else if (k == mid + 1) {
+        buf[0] = A;
+        buf[1] = C;
+        buf[2] = '\0';
     } else {
-        func4_2(n-1, target - (mid + 1),b, c, a, out);
+        func4_2(n - 1, k - mid - 1, B, C, A, buf);
     }
 }
 ```
-所以我们可以知道，初始（layer5）传入： (A, C, B)
-进入右子树 → layer4 接收： (B, C, A)
-进入左子树 → layer3 接收： (B, A, C)
-在 layer3: target == mid+1 → 写出 (r12b, r13b) == (B, A) → "BA"。
+所以我们可以知道，初始fun4_2(5,20,A,C,B)
+进入target > mid+1 → fun4_2(4,4,B,C,A)
+进入target <= mid → fun4_2(3,4,B,A,C)
+进入target = mid+1 → 输出BA
 
 所以最后的输出是BA
 
@@ -347,7 +367,7 @@ node6	0x0005555555555a2a	856 (0x358)	0x0000000000000000 (NULL)
 
 传入函数的内容如下：%rdi = 字符串指针; %esi = 当前 X 坐标; %edx = 当前 Y 坐标; %ecx = 当前字符索引。
 
-之后一大段的move都是和我们字符一一对应的（dx,dy）的移动操作，在后面我们会分析每个字符对应的是什么移动。
+之后一大段的move都是和我们字符一一对应的（dx,dy）的移动操作，在%rsp-%rsp+19对应的是x的移动，%rsp+20-%rsp+39对应y的移动。
 
 ```c
     1b16:	83 fe 04             	cmp    $0x4,%esi
@@ -355,7 +375,7 @@ node6	0x0005555555555a2a	856 (0x358)	0x0000000000000000 (NULL)
     1b1b:	83 fa 07             	cmp    $0x7,%edx
     1b1e:	75 66                	jne    1b86 <func7+0x18e>
 ```
-这里告诉了我们最后胜利的终点是%esi==4，%edx==$0x7；当指向字符串末尾的时候，会自动进入最后的是否走到重点的判断。
+这里告诉了我们最后胜利的终点是%esi=4，%edx=$0x7；当指向字符串末尾的时候，会自动进入最后的是否走到重点的判断。
 
 否则会进入以下程序控制马的移动：
 ```c
@@ -376,6 +396,9 @@ node6	0x0005555555555a2a	856 (0x358)	0x0000000000000000 (NULL)
 ```
 这里则是对x和y进行越界检测，保证x和y在0-7的范围内。
 ```c
+    1ba7:	42 03 44 94 40       	add    0x40(%rsp,%r10,4),%eax   # x的蹩马脚
+    1bac:	42 03 54 94 60       	add    0x60(%rsp,%r10,4),%edx   # y的蹩马脚          
+    1bb1:	48 8d 35 f8 45 00 00 	lea    0x45f8(%rip),%rsi        # 61b0 <row0>
     1bb1:	48 8d 35 f8 45 00 00 	lea    0x45f8(%rip),%rsi        # 61b0 <row0>
     1bb8:	85 c0                	test   %eax,%eax
     1bba:	7e 0b                	jle    1bc7 <func7+0x1cf>
@@ -388,9 +411,24 @@ node6	0x0005555555555a2a	856 (0x358)	0x0000000000000000 (NULL)
     1bcf:	80 3c 16 01          	cmpb   $0x1,(%rsi,%rdx,1)
     1bd3:	74 90                	je     1b65 <func7+0x16d>
 ```
-这里则是走迷宫问题中最经典的撞墙检测，会检测我们新的坐标的位置在0x45f8(%rip)存的数组中是否为0，如果为1的话则判定发生了撞墙，就会导致拆除失败。
+这里引入了一个非常奇怪的0x40(%rsp,%r10,4)和0x60(%rsp,%r10,4)，经过观察我们发现这和我们象棋中蹩马脚的规则非常类似，即比如我们下一步的移动是(x-1,y+2),那么就会检测(x+0,y+1)处是否有墙，有墙就会被蹩马脚，即会检测我们新的坐标的位置在0x45f8(%rip)存的数组(以链表形式保存)中是否为0，如果为1的话则判定发生了撞墙，就会导致拆除失败。
 
-所以我们只需要打印出来地图，找到一条路线就可以了。通过查看地址，我们发现：
+```c
+    1bd5:	48 8d 15 d4 45 00 00 	lea    0x45d4(%rip),%rdx        # 61b0 <row0>
+    1bdc:	45 85 c0             	test   %r8d,%r8d
+    1bdf:	7e 11                	jle    1bf2 <func7+0x1fa>
+    1be1:	b8 00 00 00 00       	mov    $0x0,%eax
+    1be6:	48 8b 52 08          	mov    0x8(%rdx),%rdx
+    1bea:	83 c0 01             	add    $0x1,%eax
+    1bed:	41 39 c0             	cmp    %eax,%r8d
+    1bf0:	75 f4                	jne    1be6 <func7+0x1ee>
+    1bf2:	49 63 c3             	movslq %r11d,%rax
+    1bf5:	b9 00 00 00 00       	mov    $0x0,%ecx
+    1bfa:	80 3c 02 01          	cmpb   $0x1,(%rdx,%rax,1)
+```
+这里就是检测我们的下一步(x+dx,y+dy)是否是墙了，是墙同样会导致拆除失败。
+
+所以我们只需要打印出来地图，找到一条路线，既不会撞到墙也不会被墙蹩马脚，就可以了。通过查看地址，我们发现：
 ```c
     Row 0: 00 00 01 00 00 01 00 00 
     Row 1: 00 00 00 01 00 00 00 01 
@@ -404,6 +442,7 @@ node6	0x0005555555555a2a	856 (0x358)	0x0000000000000000 (NULL)
 所以ccaac是一组可行的移动
 ## 反馈/收获/感悟/总结
 
+这个lab还是很有趣的，但是我觉得可以适当给一些允许爆炸的次数......就比如第一次炸不计入啥的，让大家都可以0成本看一次爆炸动画
 <!-- 这一节，你可以简单描述你在这个 lab 上花费的时间/你认为的难度/你认为不合理的地方/你认为有趣的地方 -->
 
 <!-- 或者是收获/感悟/总结 -->
@@ -412,6 +451,8 @@ node6	0x0005555555555a2a	856 (0x358)	0x0000000000000000 (NULL)
 
 ## 参考的重要资料
 
+1.ChatGPT:主要用于最开始询问gbd的用法，某些看不懂的汇编会贴他
+https://chatgpt.com/share/692a7f0f-d424-8007-abd0-30281aed3af2
 <!-- 有哪些文章/论文/PPT/课本对你的实现有重要启发或者帮助，或者是你直接引用了某个方法 -->
 
 <!-- 请附上文章标题和可访问的网页路径 -->

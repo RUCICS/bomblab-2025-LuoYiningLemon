@@ -513,13 +513,13 @@ Disassembly of section .text:
     16f8:	55                   	push   %rbp
     16f9:	53                   	push   %rbx
     16fa:	48 83 ec 08          	sub    $0x8,%rsp
-    16fe:	41 89 d4             	mov    %edx,%r12d
-    1701:	41 89 cd             	mov    %ecx,%r13d
+    16fe:	41 89 d4             	mov    %edx,%r12d  # A
+    1701:	41 89 cd             	mov    %ecx,%r13d  # C
     1704:	4c 89 cd             	mov    %r9,%rbp
     1707:	83 ff 01             	cmp    $0x1,%edi
     170a:	74 2a                	je     1736 <func4_2+0x46>
     170c:	89 f3                	mov    %esi,%ebx
-    170e:	45 89 c6             	mov    %r8d,%r14d
+    170e:	45 89 c6             	mov    %r8d,%r14d # B
     1711:	44 8d 7f ff          	lea    -0x1(%rdi),%r15d
     1715:	44 89 ff             	mov    %r15d,%edi
     1718:	e8 ad ff ff ff       	call   16ca <func4_1>
@@ -543,20 +543,20 @@ Disassembly of section .text:
     174b:	41 5e                	pop    %r14
     174d:	41 5f                	pop    %r15
     174f:	c3                   	ret
-    1750:	41 0f be ce          	movsbl %r14b,%ecx
-    1754:	41 0f be d4          	movsbl %r12b,%edx
-    1758:	49 89 e9             	mov    %rbp,%r9
-    175b:	45 0f be c5          	movsbl %r13b,%r8d
-    175f:	89 de                	mov    %ebx,%esi
-    1761:	44 89 ff             	mov    %r15d,%edi
+    1750:	41 0f be ce          	movsbl %r14b,%ecx  # C变B
+    1754:	41 0f be d4          	movsbl %r12b,%edx  # A变A
+    1758:	49 89 e9             	mov    %rbp,%r9    
+    175b:	45 0f be c5          	movsbl %r13b,%r8d  # B变C
+    175f:	89 de                	mov    %ebx,%esi    
+    1761:	44 89 ff             	mov    %r15d,%edi  # n-1 
     1764:	e8 87 ff ff ff       	call   16f0 <func4_2>
     1769:	eb d6                	jmp    1741 <func4_2+0x51>
-    176b:	41 0f be cd          	movsbl %r13b,%ecx
-    176f:	41 0f be d6          	movsbl %r14b,%edx
+    176b:	41 0f be cd          	movsbl %r13b,%ecx  # C变C
+    176f:	41 0f be d6          	movsbl %r14b,%edx  # A变B
     1773:	29 c3                	sub    %eax,%ebx
-    1775:	8d 73 ff             	lea    -0x1(%rbx),%esi
+    1775:	8d 73 ff             	lea    -0x1(%rbx),%esi # esi-mid-1
     1778:	49 89 e9             	mov    %rbp,%r9
-    177b:	45 0f be c4          	movsbl %r12b,%r8d
+    177b:	45 0f be c4          	movsbl %r12b,%r8d  # B变A
     177f:	44 89 ff             	mov    %r15d,%edi
     1782:	e8 69 ff ff ff       	call   16f0 <func4_2>
     1787:	eb b8                	jmp    1741 <func4_2+0x51>
@@ -584,9 +584,9 @@ Disassembly of section .text:
     17d6:	75 5c                	jne    1834 <phase_4+0xab>
     17d8:	48 8d 5c 24 14       	lea    0x14(%rsp),%rbx
     17dd:	49 89 d9             	mov    %rbx,%r9
-    17e0:	41 b8 42 00 00 00    	mov    $0x42,%r8d
-    17e6:	b9 43 00 00 00       	mov    $0x43,%ecx
-    17eb:	ba 41 00 00 00       	mov    $0x41,%edx
+    17e0:	41 b8 42 00 00 00    	mov    $0x42,%r8d  # r8d=B
+    17e6:	b9 43 00 00 00       	mov    $0x43,%ecx  # ecx=C
+    17eb:	ba 41 00 00 00       	mov    $0x41,%edx  # edx=A
     17f0:	be 14 00 00 00       	mov    $0x14,%esi
     17f5:	bf 05 00 00 00       	mov    $0x5,%edi
     17fa:	e8 f1 fe ff ff       	call   16f0 <func4_2>
@@ -858,7 +858,7 @@ Disassembly of section .text:
     1b86:	b9 00 00 00 00       	mov    $0x0,%ecx
     1b8b:	41 83 f9 13          	cmp    $0x13,%r9d
     1b8f:	7f d4                	jg     1b65 <func7+0x16d>
-    1b91:	49 63 c9             	movslq %r9d,%rcx
+    1b91:	49 63 c9             	movslq %r9d,%rcx         
     1b94:	0f b6 34 0f          	movzbl (%rdi,%rcx,1),%esi
     1b98:	b9 00 00 00 00       	mov    $0x0,%ecx
     1b9d:	40 84 f6             	test   %sil,%sil
@@ -866,8 +866,8 @@ Disassembly of section .text:
     1ba2:	eb 98                	jmp    1b3c <func7+0x144>
     
     1ba4:	4d 63 d2             	movslq %r10d,%r10
-    1ba7:	42 03 44 94 40       	add    0x40(%rsp,%r10,4),%eax
-    1bac:	42 03 54 94 60       	add    0x60(%rsp,%r10,4),%edx
+    1ba7:	42 03 44 94 40       	add    0x40(%rsp,%r10,4),%eax   # x的蹩马脚
+    1bac:	42 03 54 94 60       	add    0x60(%rsp,%r10,4),%edx   # y的蹩马脚          
     1bb1:	48 8d 35 f8 45 00 00 	lea    0x45f8(%rip),%rsi        # 61b0 <row0>
     1bb8:	85 c0                	test   %eax,%eax
     1bba:	7e 0b                	jle    1bc7 <func7+0x1cf>
